@@ -1,6 +1,6 @@
 var flag   = false;
 var WIDTH  = d3.select("#viewer")[0][0].offsetWidth - 20; 
-var HEIGHT = Math.max(300, WIDTH * .7);
+var HEIGHT = d3.select("#viewer")[0][0].offsetHeight - 20;
 var svg    = d3.select("svg#viewer")
   .attr('width', WIDTH)
   .attr('height', HEIGHT)
@@ -62,8 +62,8 @@ var groups = [], dots = [];
 /**
  * stepする
  * 流れとしては
- * 1.クラスタとノードの紐付けを更新
- * 2.クラスタを移動
+ * 1.クラスタにデータを割り当てる
+ * 2.クラスタの位置を移動
  * 1.2を計算できなくなるまで（？）繰り返す
  */
 function step() {
@@ -108,7 +108,7 @@ function init() {
 
   dots = [];
   flag = false;
-  // ノードを生成
+  // データを生成
   for (i = 0; i < N; i++) {
     var dot = {
       x: Math.random() * WIDTH,
@@ -198,7 +198,7 @@ function draw() {
     .append('path')
     .attr('d', d3.svg.symbol().type('cross'))
     .attr('stroke', '#aabbcc'));
-  // ノードを表示
+  // データを表示
   updateCenters(c.transition().duration(500));}
 
 /**
@@ -206,14 +206,19 @@ function draw() {
  */
 function moveCenter() {
   groups.forEach(function(group, i) {
-    if (group.dots.length == 0) return;
-    // get center of gravity
+    if (group.dots.length == 0) return; // 割当てられているデータが0の場合は計算する必要なし
     var x = 0, y = 0;
+    /**
+     * 中心の求め方の式はよくわからないが
+     * 全部のデータの位置（x,y）を足してデータの数で割る -> 平均をとったらそれは真ん中になるとのこと
+     * 数学赤点の俺にはよくわからん^q^
+     */
     group.dots.forEach(function(dot) {
       x += dot.x;
       y += dot.y;
     });
 
+    // 平均を出す -> クラスタの位置を更新
     group.center = {
       x: x / group.dots.length,
       y: y / group.dots.length
@@ -222,24 +227,27 @@ function moveCenter() {
 }
 
 /**
- * クラスタとノードの紐付けを行う
+ * クラスタとデータの割当てを行う
  */
 function updateGroups() {
-  groups.forEach(function(g) { g.dots = []; });
+  groups.forEach(function(g) { g.dots = []; }); // 再計算するため、クラスタに割り当てたデータを初期化
+  /**
+   * データの数だけループしていく
+   * んで、そのデータの位置とすべてのクラスタ位置を計算して一番近いクラスタを探す。
+   * それが見つかればそのクラスタにデータを割り当てる
+   */
   dots.forEach(function(dot) {
-    // find the nearest group
     var min = Infinity;
     var group;
     groups.forEach(function(g) {
-      var d = Math.pow(g.center.x - dot.x, 2) + Math.pow(g.center.y - dot.y, 2);
+      var d = Math.pow(g.center.x - dot.x, 2) + Math.pow(g.center.y - dot.y, 2); // 位置を計算する式
       if (d < min) {
         min   = d;
         group = g;
       }
     });
-    // update group
-    group.dots.push(dot);
-    dot.group = group;
+    group.dots.push(dot); // ここが割り当てる箇所
+    dot.group = group;    // データにもクラスタの情報を渡す
   });
 }
 
