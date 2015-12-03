@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<style>
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+#kmeans {
+  width: 840px;
+  height: 500px;
+}
+#viewer {
+  width: 500px;
+  height: 500px;
+}
+.fieldset {
+  display: inline;
+  margin: .8em 0 1em 0;
+  border: 1px solid #999;
+  padding: .5em;
+  width: 100px;
+}
+</style>
+<body>
+    <div id="kmeans">
+        <div class="fl">
+            <svg id="viewer"></svg>
+        </div>
+        <div class="fl">
+          <div>
+              <button id="step">ステップ</button>
+              <button id="restart" disabled>最初から</button>
+          </div>
+          <fieldset class="fieldset">
+              <div>
+                  <label for="N">N (ノード数):</label>
+                  <input type="number" id="N" min="2" max="1000" value="100">
+              </div>
+              <div>
+                  <label for="K">K (クラスター数):</label>
+                  <input type="number" id="K" min="2" max="50" value="5">
+              </div>
+              <div>
+                  <button id="reset">新規作成</button>
+              </div>
+          </fieldset>
+        </div>
+        <div clear="all"></div>
+    </div>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="./k-means.js"></script>
+</body>
+
+</html>
